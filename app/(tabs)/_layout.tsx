@@ -1,12 +1,67 @@
 import { Ionicons } from '@expo/vector-icons';
+import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { Tabs, useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Modal, Text, TouchableOpacity, View } from 'react-native';
+import { useRef, useState } from 'react';
+import {
+  Animated,
+  Modal,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function TabLayout() {
   const router = useRouter();
   const isLoggedIn = true;
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  const AnimatedTabBarButton = ({
+    children,
+    onPress,
+    style,
+    ...restProps
+  }: BottomTabBarButtonProps) => {
+    const scaleValue = useRef(new Animated.Value(1)).current;
+
+    const handlePressOut = () => {
+      Animated.sequence([
+        Animated.spring(scaleValue, {
+          toValue: 1.2,
+          useNativeDriver: true,
+          // friction: 100,
+          speed: 200,
+        }),
+        Animated.spring(scaleValue, {
+          toValue: 1,
+          useNativeDriver: true,
+          // friction: 100,
+          speed: 200,
+        }),
+      ]).start();
+    };
+
+    // Extract ref from restProps to avoid type conflicts
+    const { ref, ...pressableProps } = restProps;
+
+    return (
+      <Pressable
+        {...pressableProps}
+        onPress={onPress}
+        onPressOut={handlePressOut}
+        style={[
+          { flex: 1, justifyContent: 'center', alignItems: 'center' },
+          style,
+        ]}
+        // Disable Android ripple effect
+        android_ripple={{ borderless: false, radius: 0 }}
+      >
+        <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+          {children}
+        </Animated.View>
+      </Pressable>
+    );
+  };
 
   const openLoginModal = () => {
     setIsLoginModalOpen(true);
@@ -22,6 +77,7 @@ export default function TabLayout() {
         backBehavior="history"
         screenOptions={{
           headerShown: false,
+          tabBarButton: (props) => <AnimatedTabBarButton {...props} />,
         }}
       >
         <Tabs.Screen

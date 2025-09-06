@@ -15,13 +15,14 @@ export default function Index() {
   const router = useRouter();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
+  const isLoggedIn = false;
 
   console.log('pathname', pathname);
   console.log('insets', insets);
 
   const { width, height } = Dimensions.get('window');
 
-  console.log(`화면 너머: ${width}dp, 높이: ${height}dp`);
+  console.log(`화면 너비: ${width}dp, 높이: ${height}dp`);
   console.log(
     `화면 너비: ${width * PixelRatio.get()}px, 높이: ${
       height * PixelRatio.get()
@@ -40,29 +41,33 @@ export default function Index() {
           source={require('@/assets/images/react-logo.png')}
           style={styles.headerLogo}
         />
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={() => router.replace('/login')}
-        >
-          <Text style={styles.loginButtonText}>로그인</Text>
-        </TouchableOpacity>
+        {!isLoggedIn && (
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => router.replace('/login')}
+          >
+            <Text style={styles.loginButtonText}>로그인</Text>
+          </TouchableOpacity>
+        )}
       </BlurView>
-      <View style={styles.tabContainer}>
-        <View style={styles.tab}>
-          <TouchableOpacity onPress={() => router.replace('/')}>
-            <Text style={{ color: pathname === '/' ? 'red' : 'black' }}>
-              For you
-            </Text>
-          </TouchableOpacity>
+      {isLoggedIn && (
+        <View style={styles.tabContainer}>
+          <View style={styles.tab}>
+            <TouchableOpacity onPress={() => router.replace('/')}>
+              <Text style={{ color: pathname === '/' ? 'red' : 'black' }}>
+                For you
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.tab}>
+            <TouchableOpacity onPress={() => router.replace('/following')}>
+              <Text style={{ color: pathname === '/' ? 'black' : 'red' }}>
+                Following
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.tab}>
-          <TouchableOpacity onPress={() => router.replace('/following')}>
-            <Text style={{ color: pathname === '/' ? 'black' : 'red' }}>
-              Following
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      )}
       <View>
         <TouchableOpacity onPress={() => router.replace('/@morkim/post/1')}>
           <Text>게시글1</Text>
