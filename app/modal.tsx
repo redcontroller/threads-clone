@@ -3,6 +3,7 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import * as MediaLibrary from 'expo-media-library';
+import { router } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
   Alert,
@@ -100,7 +101,9 @@ export default function Modal() {
     []
   );
 
-  const handleCancel = () => {};
+  const handleCancel = () => {
+    router.back();
+  };
 
   const handlePost = () => {
     setIsPosting(true);

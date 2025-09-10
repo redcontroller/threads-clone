@@ -24,7 +24,7 @@ if (__DEV__) {
               id: 'user0',
               name: 'morkim',
               description: 'programmer, developer',
-              profileImage:
+              profileImageUrl:
                 'https://avatars.githubusercontent.com/u/123456789?v=4',
             },
           };

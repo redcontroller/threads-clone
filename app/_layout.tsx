@@ -1,14 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack, router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 
 interface User {
   id: string;
   name: string;
   description: string;
-  profileImage: string;
+  profileImageUrl: string;
 }
 
 interface AuthContextType {
@@ -28,7 +28,7 @@ export default function RootLayout() {
       method: 'POST',
       body: JSON.stringify({
         username: 'user0',
-        password: '1235', // '234'
+        password: '1234', // '1234'
       }),
     })
       .then((res) => {
@@ -40,6 +40,12 @@ export default function RootLayout() {
       })
       .then((data) => {
         console.log('data', data);
+
+        // 토큰이 유효한지 확인
+        if (!data.accessToken || !data.refreshToken) {
+          throw new Error('Invalid response: missing tokens');
+        }
+
         return Promise.all([
           SecureStore.setItem('accessToken', data.accessToken),
           SecureStore.setItem('refreshToken', data.refreshToken),
@@ -62,6 +68,13 @@ export default function RootLayout() {
       AsyncStorage.removeItem('user'),
     ]);
   };
+
+  useEffect(() => {
+    AsyncStorage.getItem('user').then((user) => {
+      setUser(user ? JSON.parse(user) : null);
+    });
+    // TODO: validating accessToken
+  }, []);
 
   return (
     <AuthContext value={{ user, login, logout }}>
