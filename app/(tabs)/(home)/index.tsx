@@ -1,9 +1,13 @@
+import { AuthContext } from '@/app/_layout';
+import SideMenu from '@/components/SideMenu';
+import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { usePathname, useRouter } from 'expo-router';
+import { useContext } from 'react';
 import {
   Dimensions,
-  Image,
   PixelRatio,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -15,7 +19,9 @@ export default function Index() {
   const router = useRouter();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
-  const isLoggedIn = false;
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+  const { user } = useContext(AuthContext) || {};
+  const isLoggedIn = !!user?.id;
 
   console.log('pathname', pathname);
   console.log('insets', insets);
@@ -37,18 +43,20 @@ export default function Index() {
       ]}
     >
       <BlurView style={styles.header} intensity={70}>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={styles.headerLogo}
-        />
-        {!isLoggedIn && (
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => router.replace('/login')}
+        {isLoggedIn && (
+          <Pressable
+            style={styles.menuButton}
+            onPress={() => {
+              setIsSideMenuOpen(true);
+            }}
           >
-            <Text style={styles.loginButtonText}>로그인</Text>
-          </TouchableOpacity>
+            <Ionicons name="menu" size={24} color="black" />
+          </Pressable>
         )}
+        <SideMenu
+          isVisible={isSideMenuOpen}
+          onClose={() => setIsSideMenuOpen(false)}
+        />
       </BlurView>
       {isLoggedIn && (
         <View style={styles.tabContainer}>
@@ -105,18 +113,9 @@ const styles = StyleSheet.create({
     width: 42, // DP, DIP
     height: 42,
   },
-  loginButton: {
+  menuButton: {
     position: 'absolute',
-    right: 20,
-    top: 0,
-    backgroundColor: 'black',
-    borderWidth: 1,
-    borderColor: 'black',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-  },
-  loginButtonText: {
-    color: 'white',
+    left: 20,
+    top: 10,
   },
 });

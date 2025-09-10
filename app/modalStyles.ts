@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-export const modalStyles = StyleSheet.create({
+const modalStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -382,3 +382,5 @@ export const modalStyles = StyleSheet.create({
     marginLeft: 8,
   },
 });
+
+export default modalStyles;

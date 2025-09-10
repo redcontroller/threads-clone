@@ -28,7 +28,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { modalStyles as styles } from './modalStyles';
+import styles from './modalStyles';
 
 interface Thread {
   id: string;
