@@ -2,11 +2,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { Tabs, useRouter } from 'expo-router';
 import { useContext, useRef, useState } from 'react';
-import { Animated, Modal, Pressable, Text, View } from 'react-native';
+import {
+  Animated,
+  Modal,
+  Pressable,
+  Text,
+  useColorScheme,
+  View,
+} from 'react-native';
 import { AuthContext } from '../_layout';
 
 export default function TabLayout() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
   const { user } = useContext(AuthContext) || {};
   const isLoggedIn = !!user?.id;
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -77,6 +85,10 @@ export default function TabLayout() {
         backBehavior="history"
         screenOptions={{
           headerShown: false,
+          tabBarStyle: {
+            backgroundColor: colorScheme === 'dark' ? '#101010' : '#fff',
+            borderTopWidth: 0,
+          },
           tabBarButton: (props) => <AnimatedTabBarButton {...props} />,
         }}
       >
@@ -88,7 +100,9 @@ export default function TabLayout() {
               <Ionicons
                 name="home"
                 size={24}
-                color={focused ? 'black' : 'gray'}
+                color={
+                  focused ? (colorScheme === 'dark' ? '#fff' : '#000') : 'gray'
+                }
               />
             ),
           }}
@@ -101,7 +115,9 @@ export default function TabLayout() {
               <Ionicons
                 name="search"
                 size={24}
-                color={focused ? 'black' : 'gray'}
+                color={
+                  focused ? (colorScheme === 'dark' ? '#fff' : '#000') : 'gray'
+                }
               />
             ),
           }}
@@ -124,7 +140,9 @@ export default function TabLayout() {
               <Ionicons
                 name="add"
                 size={24}
-                color={focused ? 'black' : 'gray'}
+                color={
+                  focused ? (colorScheme === 'dark' ? '#fff' : '#000') : 'gray'
+                }
               />
             ),
           }}
@@ -145,7 +163,9 @@ export default function TabLayout() {
               <Ionicons
                 name="heart-outline"
                 size={24}
-                color={focused ? 'black' : 'gray'}
+                color={
+                  focused ? (colorScheme === 'dark' ? '#fff' : '#000') : 'gray'
+                }
               />
             ),
           }}
@@ -166,7 +186,9 @@ export default function TabLayout() {
               <Ionicons
                 name="person-outline"
                 size={24}
-                color={focused ? 'black' : 'gray'}
+                color={
+                  focused ? (colorScheme === 'dark' ? '#fff' : '#000') : 'gray'
+                }
               />
             ),
           }}
@@ -187,15 +209,24 @@ export default function TabLayout() {
           style={{
             flex: 1,
             justifyContent: 'flex-end',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backgroundColor: colorScheme === 'dark' ? '#101010' : '#fff',
           }}
         >
-          <View style={{ backgroundColor: 'white', padding: 20 }}>
+          <View
+            style={{
+              backgroundColor: colorScheme === 'dark' ? '#101010' : '#fff',
+              padding: 20,
+            }}
+          >
             <Pressable onPress={toLoginPage}>
               <Text>Login Modal</Text>
             </Pressable>
             <Pressable onPress={closeLoginModal}>
-              <Ionicons name="close" size={24} color="#555" />
+              <Ionicons
+                name="close"
+                size={24}
+                color={colorScheme === 'dark' ? '#fff' : '#000'}
+              />
             </Pressable>
           </View>
         </View>

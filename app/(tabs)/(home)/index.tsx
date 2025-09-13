@@ -7,11 +7,13 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useColorScheme,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Index() {
+  const colorScheme = useColorScheme();
   const router = useRouter();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
@@ -32,22 +34,56 @@ export default function Index() {
   );
 
   return (
-    <>
+    <View
+      style={
+        colorScheme === 'dark' ? styles.containerDark : styles.containerLight
+      }
+    >
       <View>
         <TouchableOpacity onPress={() => router.replace('/@morkim/post/1')}>
-          <Text>게시글1</Text>
+          <Text
+            style={colorScheme === 'dark' ? styles.textDark : styles.textLight}
+          >
+            게시글1
+          </Text>
         </TouchableOpacity>
       </View>
       <View>
         <TouchableOpacity onPress={() => router.replace('/@morkim/post/2')}>
-          <Text>게시글2</Text>
+          <Text
+            style={colorScheme === 'dark' ? styles.textDark : styles.textLight}
+          >
+            게시글2
+          </Text>
         </TouchableOpacity>
       </View>
       <View>
         <TouchableOpacity onPress={() => router.replace('/@morkim/post/3')}>
-          <Text>게시글3</Text>
+          <Text
+            style={colorScheme === 'dark' ? styles.textDark : styles.textLight}
+          >
+            게시글3
+          </Text>
         </TouchableOpacity>
       </View>
-    </>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  containerDark: {
+    backgroundColor: '#101010',
+  },
+  containerLight: {
+    backgroundColor: '#fff',
+  },
+  textDark: {
+    color: '#fff',
+  },
+  textLight: {
+    color: '#000',
+  },
+});
