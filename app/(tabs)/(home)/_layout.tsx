@@ -44,7 +44,8 @@ export default function TabLayout() {
     <View
       style={[
         styles.container,
-        { paddingTop: insets.top, paddingBottom: insets.bottom },
+        { paddingTop: insets.top },
+        colorScheme === 'dark' ? styles.containerDark : styles.containerLight,
       ]}
     >
       <BlurView
@@ -106,18 +107,18 @@ export default function TabLayout() {
           screenOptions={{
             lazy: true,
             tabBarStyle: {
-              backgroundColor: colorScheme === 'dark' ? '#101010' : '#fff',
+              backgroundColor: colorScheme === 'dark' ? '#101010' : 'white',
               shadowColor: 'transparent',
               position: 'relative',
             },
             tabBarPressColor: 'transparent',
-            tabBarActiveTintColor: colorScheme === 'dark' ? '#fff' : '#555',
+            tabBarActiveTintColor: colorScheme === 'dark' ? 'white' : '#555',
             tabBarIndicatorStyle: {
-              backgroundColor: colorScheme === 'dark' ? '#fff' : '#101010',
-              height: 1,
+              backgroundColor: colorScheme === 'dark' ? 'white' : 'black',
+              height: 1.5,
             },
             tabBarIndicatorContainerStyle: {
-              backgroundColor: colorScheme === 'dark' ? '#fff' : '#555',
+              backgroundColor: colorScheme === 'dark' ? '#aaa' : '#555',
               position: 'absolute',
               top: 49,
               height: 1,
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   containerLight: {
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
   },
   containerDark: {
     backgroundColor: '#101010',
@@ -155,7 +156,7 @@ const styles = StyleSheet.create({
     height: 50,
   },
   headerLight: {
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
   },
   headerDark: {
     backgroundColor: '#101010',
@@ -171,7 +172,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#101010',
   },
   menuButton: {
-    padding: 8,
     position: 'absolute',
     left: 16,
   },
@@ -182,15 +182,15 @@ const styles = StyleSheet.create({
     right: 16,
   },
   loginButtonDark: {
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
   },
   loginButtonLight: {
-    backgroundColor: '#000',
+    backgroundColor: 'black',
   },
   loginButtonTextLight: {
-    color: '#fff',
+    color: 'white',
   },
   loginButtonTextDark: {
-    color: '#000',
+    color: 'black',
   },
 });

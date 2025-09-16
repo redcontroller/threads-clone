@@ -15,6 +15,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  useColorScheme,
   View,
 } from 'react-native';
 import {
@@ -71,6 +72,7 @@ const generateId = () => `thread_${Math.random().toString(36).substring(2, 9)}`;
 
 export default function Modal() {
   // const router = useRouter();
+  const colorScheme = useColorScheme();
   const [threads, setThreads] = useState<Thread[]>(() => [
     { id: generateId(), text: '', imageUris: [] },
   ]);
@@ -379,7 +381,16 @@ export default function Modal() {
       <View style={styles.contentContainer}>
         <View style={styles.userInfoContainer}>
           <View style={styles.topicContainer}>
-            <Text style={styles.username}>user0</Text>
+            <Text
+              style={[
+                styles.username,
+                colorScheme === 'dark'
+                  ? styles.usernameDark
+                  : styles.usernameLight,
+              ]}
+            >
+              user0
+            </Text>
             <Pressable onPress={openTopicDrawer}>
               {item.topic ? (
                 <View style={styles.topicInputContainer}>
@@ -403,7 +414,12 @@ export default function Modal() {
                       style={styles.chevronIcon}
                     />
                     <TextInput
-                      style={styles.topicPlaceholder}
+                      style={[
+                        styles.topicPlaceholder,
+                        colorScheme === 'dark'
+                          ? styles.inputDark
+                          : styles.inputLight,
+                      ]}
                       placeholder="Add to topic"
                       placeholderTextColor="#999"
                       onFocus={openTopicDrawer}
@@ -496,14 +512,38 @@ export default function Modal() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.header}>
+      <View
+        style={[
+          styles.container,
+          { paddingTop: insets.top },
+          colorScheme === 'dark' ? styles.containerDark : styles.containerLight,
+        ]}
+      >
+        <View
+          style={[
+            styles.header,
+            colorScheme === 'dark' ? styles.headerDark : styles.headerLight,
+          ]}
+        >
           <Pressable onPress={handleCancel} disabled={isPosting}>
-            <Text style={[styles.cancel, isPosting && styles.disabledText]}>
+            <Text
+              style={[
+                styles.cancel,
+                colorScheme === 'dark' ? styles.cancelDark : styles.cancelLight,
+                isPosting && styles.disabledText,
+              ]}
+            >
               Cancel
             </Text>
           </Pressable>
-          <Text style={styles.title}>New thread</Text>
+          <Text
+            style={[
+              styles.title,
+              colorScheme === 'dark' ? styles.titleDark : styles.titleLight,
+            ]}
+          >
+            New thread
+          </Text>
           <View style={styles.headerRightPlaceholder} />
         </View>
 
@@ -525,8 +565,13 @@ export default function Modal() {
                 }}
               />
             }
-            style={styles.list}
-            contentContainerStyle={{ paddingBottom: 100 }}
+            style={[
+              styles.list,
+              colorScheme === 'dark' ? styles.listDark : styles.listLight,
+            ]}
+            contentContainerStyle={{
+              backgroundColor: colorScheme === 'dark' ? '#101010' : 'white',
+            }}
             keyboardShouldPersistTaps="handled"
           />
 
@@ -544,6 +589,9 @@ export default function Modal() {
                 style={[
                   styles.dropdownContainer,
                   { bottom: insets.bottom + 30 },
+                  colorScheme === 'dark'
+                    ? styles.dropdownContainerDark
+                    : styles.dropdownContainerLight,
                 ]}
               >
                 {replyOptions.map((option) => (
@@ -562,6 +610,9 @@ export default function Modal() {
                       style={[
                         styles.dropdownOptionText,
                         option === replyOption && styles.selectedOptionText,
+                        colorScheme === 'dark'
+                          ? styles.dropdownOptionTextDark
+                          : styles.dropdownOptionTextLight,
                       ]}
                     >
                       {option}
@@ -572,18 +623,49 @@ export default function Modal() {
             </Pressable>
           </RNModal>
 
-          <View style={[styles.footer, { paddingBottom: insets.bottom + 10 }]}>
+          <View
+            style={[
+              styles.footer,
+              { paddingBottom: insets.bottom + 10 },
+              colorScheme === 'dark' ? styles.footerDark : styles.footerLight,
+            ]}
+          >
             <Pressable onPress={() => setIsDropdownVisible(true)}>
-              <Text style={styles.footerText}>
+              <Text
+                style={[
+                  styles.footerText,
+                  colorScheme === 'dark'
+                    ? styles.footerTextDark
+                    : styles.footerTextLight,
+                ]}
+              >
                 {replyOption} can reply & quote
               </Text>
             </Pressable>
             <Pressable
-              style={[styles.postButton, !canPost && styles.postButtonDisabled]}
+              style={[
+                styles.postButton,
+                colorScheme === 'dark'
+                  ? styles.postButtonDark
+                  : styles.postButtonLight,
+                !canPost &&
+                  (colorScheme === 'dark'
+                    ? styles.postButtonDisabledDark
+                    : styles.postButtonDisabledLight),
+              ]}
               disabled={!canPost}
               onPress={handlePost}
             >
-              <Text style={styles.postButtonText}>Post</Text>
+              <Text
+                style={[
+                  styles.postButtonText,
+                  colorScheme === 'dark'
+                    ? styles.postButtonTextDark
+                    : styles.postButtonTextLight,
+                ]}
+              >
+                Post
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -598,17 +680,34 @@ export default function Modal() {
                   marginTop: insets.top,
                   paddingBottom: insets.bottom + 40,
                 },
+                colorScheme === 'dark'
+                  ? styles.bottomSheetContainerDark
+                  : styles.bottomSheetContainerLight,
                 animatedSheetStyle,
               ]}
             >
               <GestureDetector gesture={panGesture}>
-                <View style={styles.bottomSheetHeader}>
+                <View
+                  style={[
+                    styles.bottomSheetHeader,
+                    colorScheme === 'dark'
+                      ? styles.bottomSheetHeaderDark
+                      : styles.bottomSheetHeaderLight,
+                  ]}
+                >
                   <View style={styles.bottomSheetHeaderLine} />
                 </View>
               </GestureDetector>
 
               {/* Search Bar */}
-              <View style={styles.searchContainer}>
+              <View
+                style={[
+                  styles.searchContainer,
+                  colorScheme === 'dark'
+                    ? styles.searchContainerDark
+                    : styles.searchContainerLight,
+                ]}
+              >
                 <View style={styles.searchInputContainer}>
                   <Ionicons
                     name="search"
@@ -617,7 +716,12 @@ export default function Modal() {
                     style={styles.searchIcon}
                   />
                   <TextInput
-                    style={styles.searchInput}
+                    style={[
+                      styles.searchInput,
+                      colorScheme === 'dark'
+                        ? styles.searchInputDark
+                        : styles.searchInputLight,
+                    ]}
                     placeholder="주제 검색"
                     placeholderTextColor="#999"
                     value={searchQuery}
@@ -628,7 +732,12 @@ export default function Modal() {
                 </View>
                 <TouchableOpacity
                   onPress={() => setSearchQuery('')}
-                  style={styles.removeSearchTextButton}
+                  style={[
+                    styles.removeSearchTextButton,
+                    colorScheme === 'dark'
+                      ? styles.removeSearchTextButtonDark
+                      : styles.removeSearchTextButtonLight,
+                  ]}
                 >
                   <Ionicons name="close" size={16} color="#999" />
                 </TouchableOpacity>
@@ -636,12 +745,24 @@ export default function Modal() {
 
               {/* Current Topic Display */}
               {hasTopic && (
-                <View style={styles.currentTopicContainer}>
+                <View
+                  style={[
+                    styles.currentTopicContainer,
+                    colorScheme === 'dark'
+                      ? styles.currentTopicContainerDark
+                      : styles.currentTopicContainerLight,
+                  ]}
+                >
                   <View style={styles.currentTopicChip}>
                     <Text style={styles.currentTopicText}>{currentTopic}</Text>
                     <TouchableOpacity
                       onPress={handleTopicRemove}
-                      style={styles.removeTopicButton}
+                      style={[
+                        styles.removeTopicButton,
+                        colorScheme === 'dark'
+                          ? styles.removeTopicButtonDark
+                          : styles.removeTopicButtonLight,
+                      ]}
                     >
                       <Ionicons name="close" size={16} color="#ccc" />
                     </TouchableOpacity>
@@ -679,12 +800,33 @@ export default function Modal() {
 
                   return (
                     <TouchableOpacity
-                      style={styles.topicOption}
+                      style={[
+                        styles.topicOption,
+                        colorScheme === 'dark'
+                          ? styles.topicOptionDark
+                          : styles.topicOptionLight,
+                      ]}
                       onPress={() => handleTopicSelect(topic)}
                     >
-                      <Text style={styles.topicOptionText}>{topic}</Text>
+                      <Text
+                        style={[
+                          styles.topicOptionText,
+                          colorScheme === 'dark'
+                            ? styles.topicOptionTextDark
+                            : styles.topicOptionTextLight,
+                        ]}
+                      >
+                        {topic}
+                      </Text>
                       {isNewTopic && (
-                        <Text style={styles.newTopicText}>
+                        <Text
+                          style={[
+                            styles.newTopicText,
+                            colorScheme === 'dark'
+                              ? styles.newTopicTextDark
+                              : styles.newTopicTextLight,
+                          ]}
+                        >
                           + 새로운 주제 태그하기
                         </Text>
                       )}
@@ -692,7 +834,12 @@ export default function Modal() {
                   );
                 }}
                 keyExtractor={(topic, index) => `topic-${index}`}
-                style={styles.bottomSheetList}
+                style={[
+                  styles.bottomSheetList,
+                  colorScheme === 'dark'
+                    ? styles.bottomSheetListDark
+                    : styles.bottomSheetListLight,
+                ]}
                 showsVerticalScrollIndicator={true}
                 keyboardShouldPersistTaps="always"
                 keyboardDismissMode="interactive"

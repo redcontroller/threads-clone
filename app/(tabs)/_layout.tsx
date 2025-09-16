@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
+import { type BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { Tabs, useRouter } from 'expo-router';
 import { useContext, useRef, useState } from 'react';
 import {
@@ -12,59 +12,56 @@ import {
 } from 'react-native';
 import { AuthContext } from '../_layout';
 
+const AnimatedTabBarButton = ({
+  children,
+  onPress,
+  style,
+  ...restProps
+}: BottomTabBarButtonProps) => {
+  // Extract ref from restProps to avoid type conflicts
+  const { ref, ...pressableProps } = restProps;
+  const scaleValue = useRef(new Animated.Value(1)).current;
+
+  const handlePressOut = () => {
+    Animated.sequence([
+      Animated.spring(scaleValue, {
+        toValue: 1.2,
+        useNativeDriver: true,
+        speed: 200,
+      }),
+      Animated.spring(scaleValue, {
+        toValue: 1,
+        useNativeDriver: true,
+        speed: 200,
+      }),
+    ]).start();
+  };
+
+  return (
+    <Pressable
+      {...pressableProps}
+      onPress={onPress}
+      onPressOut={handlePressOut}
+      style={[
+        { flex: 1, justifyContent: 'center', alignItems: 'center' },
+        style,
+      ]}
+      // Disable Android ripple effect
+      android_ripple={{ borderless: false, radius: 0 }}
+    >
+      <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+        {children}
+      </Animated.View>
+    </Pressable>
+  );
+};
+
 export default function TabLayout() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const { user } = useContext(AuthContext) || {};
   const isLoggedIn = !!user?.id;
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-
-  const AnimatedTabBarButton = ({
-    children,
-    onPress,
-    style,
-    ...restProps
-  }: BottomTabBarButtonProps) => {
-    const scaleValue = useRef(new Animated.Value(1)).current;
-
-    const handlePressOut = () => {
-      Animated.sequence([
-        Animated.spring(scaleValue, {
-          toValue: 1.2,
-          useNativeDriver: true,
-          // friction: 100,
-          speed: 200,
-        }),
-        Animated.spring(scaleValue, {
-          toValue: 1,
-          useNativeDriver: true,
-          // friction: 100,
-          speed: 200,
-        }),
-      ]).start();
-    };
-
-    // Extract ref from restProps to avoid type conflicts
-    const { ref, ...pressableProps } = restProps;
-
-    return (
-      <Pressable
-        {...pressableProps}
-        onPress={onPress}
-        onPressOut={handlePressOut}
-        style={[
-          { flex: 1, justifyContent: 'center', alignItems: 'center' },
-          style,
-        ]}
-        // Disable Android ripple effect
-        android_ripple={{ borderless: false, radius: 0 }}
-      >
-        <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
-          {children}
-        </Animated.View>
-      </Pressable>
-    );
-  };
 
   const openLoginModal = () => {
     setIsLoginModalOpen(true);
@@ -86,7 +83,7 @@ export default function TabLayout() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: colorScheme === 'dark' ? '#101010' : '#fff',
+            backgroundColor: colorScheme === 'dark' ? '#101010' : 'white',
             borderTopWidth: 0,
           },
           tabBarButton: (props) => <AnimatedTabBarButton {...props} />,
@@ -101,7 +98,11 @@ export default function TabLayout() {
                 name="home"
                 size={24}
                 color={
-                  focused ? (colorScheme === 'dark' ? '#fff' : '#000') : 'gray'
+                  focused
+                    ? colorScheme === 'dark'
+                      ? 'white'
+                      : 'black'
+                    : 'gray'
                 }
               />
             ),
@@ -116,7 +117,11 @@ export default function TabLayout() {
                 name="search"
                 size={24}
                 color={
-                  focused ? (colorScheme === 'dark' ? '#fff' : '#000') : 'gray'
+                  focused
+                    ? colorScheme === 'dark'
+                      ? 'white'
+                      : 'black'
+                    : 'gray'
                 }
               />
             ),
@@ -126,6 +131,7 @@ export default function TabLayout() {
           name="add"
           listeners={{
             tabPress: (e) => {
+              console.log('tabPress');
               e.preventDefault();
               if (isLoggedIn) {
                 router.navigate('/modal');
@@ -141,7 +147,11 @@ export default function TabLayout() {
                 name="add"
                 size={24}
                 color={
-                  focused ? (colorScheme === 'dark' ? '#fff' : '#000') : 'gray'
+                  focused
+                    ? colorScheme === 'dark'
+                      ? 'white'
+                      : 'black'
+                    : 'gray'
                 }
               />
             ),
@@ -164,7 +174,11 @@ export default function TabLayout() {
                 name="heart-outline"
                 size={24}
                 color={
-                  focused ? (colorScheme === 'dark' ? '#fff' : '#000') : 'gray'
+                  focused
+                    ? colorScheme === 'dark'
+                      ? 'white'
+                      : 'black'
+                    : 'gray'
                 }
               />
             ),
@@ -187,7 +201,11 @@ export default function TabLayout() {
                 name="person-outline"
                 size={24}
                 color={
-                  focused ? (colorScheme === 'dark' ? '#fff' : '#000') : 'gray'
+                  focused
+                    ? colorScheme === 'dark'
+                      ? 'white'
+                      : 'black'
+                    : 'gray'
                 }
               />
             ),
@@ -209,12 +227,12 @@ export default function TabLayout() {
           style={{
             flex: 1,
             justifyContent: 'flex-end',
-            backgroundColor: colorScheme === 'dark' ? '#101010' : '#fff',
+            backgroundColor: 'rgba(0,0,0,0.5)',
           }}
         >
           <View
             style={{
-              backgroundColor: colorScheme === 'dark' ? '#101010' : '#fff',
+              backgroundColor: 'white',
               padding: 20,
             }}
           >
@@ -222,11 +240,7 @@ export default function TabLayout() {
               <Text>Login Modal</Text>
             </Pressable>
             <Pressable onPress={closeLoginModal}>
-              <Ionicons
-                name="close"
-                size={24}
-                color={colorScheme === 'dark' ? '#fff' : '#000'}
-              />
+              <Ionicons name="close" size={24} color="#555" />
             </Pressable>
           </View>
         </View>

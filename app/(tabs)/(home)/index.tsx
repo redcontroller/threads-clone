@@ -1,72 +1,85 @@
-import { AuthContext } from '@/app/_layout';
-import { usePathname, useRouter } from 'expo-router';
-import { useContext, useState } from 'react';
-import {
-  Dimensions,
-  PixelRatio,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useColorScheme,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Post from '@/components/Post';
+import { useRouter } from 'expo-router';
+import { ScrollView, StyleSheet, useColorScheme } from 'react-native';
 
 export default function Index() {
-  const colorScheme = useColorScheme();
   const router = useRouter();
-  const pathname = usePathname();
-  const insets = useSafeAreaInsets();
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
-  const { user } = useContext(AuthContext) || {};
-  const isLoggedIn = !!user?.id;
-
-  console.log('pathname', pathname);
-  console.log('insets', insets);
-
-  const { width, height } = Dimensions.get('window');
-
-  console.log(`화면 너비: ${width}dp, 높이: ${height}dp`);
-  console.log(
-    `화면 너비: ${width * PixelRatio.get()}px, 높이: ${
-      height * PixelRatio.get()
-    }px`
-  );
+  const colorScheme = useColorScheme();
 
   return (
-    <View
-      style={
-        colorScheme === 'dark' ? styles.containerDark : styles.containerLight
-      }
+    <ScrollView
+      nestedScrollEnabled
+      style={[
+        styles.container,
+        colorScheme === 'dark' ? styles.containerDark : styles.containerLight,
+      ]}
     >
-      <View>
-        <TouchableOpacity onPress={() => router.replace('/@morkim/post/1')}>
-          <Text
-            style={colorScheme === 'dark' ? styles.textDark : styles.textLight}
-          >
-            게시글1
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <View>
-        <TouchableOpacity onPress={() => router.replace('/@morkim/post/2')}>
-          <Text
-            style={colorScheme === 'dark' ? styles.textDark : styles.textLight}
-          >
-            게시글2
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <View>
-        <TouchableOpacity onPress={() => router.replace('/@morkim/post/3')}>
-          <Text
-            style={colorScheme === 'dark' ? styles.textDark : styles.textLight}
-          >
-            게시글3
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      <Post
+        item={{
+          id: '0',
+          username: 'madison',
+          displayName: 'Madison',
+          content: 'What is this?',
+          timeAgo: '30 minutes ago',
+          likes: 10,
+          comments: 5,
+          reposts: 2,
+          isVerified: true,
+          avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
+          images: [`https://picsum.photos/800/600?random=${Math.random()}`],
+          location: [37.125, 124.97],
+        }}
+      />
+      <Post
+        item={{
+          id: '1',
+          username: 'user0',
+          displayName: 'User0',
+          content: 'My website is ZeroCho.com',
+          timeAgo: '1 hour ago',
+          likes: 10,
+          comments: 5,
+          reposts: 2,
+          link: 'https://www.zerocho.com',
+          linkThumbnail: 'https://www.zerocho.com/favicon.png',
+          isVerified: true,
+          avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+        }}
+      />
+      <Post
+        item={{
+          id: '2',
+          username: 'user0',
+          displayName: 'User0',
+          content: 'Hello, world!',
+          timeAgo: '1 hour ago',
+          likes: 10,
+          comments: 5,
+          reposts: 2,
+          isVerified: true,
+          avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+        }}
+      />
+      <Post
+        item={{
+          id: '3',
+          username: 'karina',
+          displayName: 'Karina',
+          content: 'Hello, world!',
+          timeAgo: '1 hour ago',
+          likes: 10,
+          comments: 5,
+          reposts: 2,
+          isVerified: true,
+          avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
+          images: [
+            `https://picsum.photos/800/600?random=${Math.random()}`,
+            `https://picsum.photos/800/600?random=${Math.random()}`,
+          ],
+          location: [37.125, 124.97],
+        }}
+      />
+    </ScrollView>
   );
 }
 
