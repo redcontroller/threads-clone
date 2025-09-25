@@ -12,32 +12,28 @@ import {
 
 export interface ActivityItemProps {
   id: string;
-  username: string;
-  otherCount?: number;
+  userId: string;
+  profileImageUrl: string;
   timeAgo: string;
   content: string;
   type: string;
-  link?: string;
-  reply?: string;
   likes?: number;
-  actionButton?: React.ReactNode;
-  avatar: string;
-  postId?: string;
+  postId?: string | null;
+  isRead: boolean;
+  isVerified: boolean;
 }
 
 export default function ActivityItem({
   id,
-  username,
-  otherCount,
+  userId,
+  profileImageUrl,
   timeAgo,
   content,
   type,
-  link,
-  reply,
   likes,
-  actionButton,
-  avatar,
   postId,
+  isRead,
+  isVerified,
 }: ActivityItemProps) {
   const router = useRouter();
   const colorScheme = useColorScheme();
@@ -72,29 +68,29 @@ export default function ActivityItem({
   const handleItemPress = () => {
     if (type === 'follow' || type === 'followed') {
       // 팔로우/팔로워 알림은 프로필로 이동
-      router.push(`/${username}`);
+      router.push(`/${userId}`);
     } else if (postId) {
       // 나머지 알림은 게시글로 이동 (postId가 있는 경우)
-      router.push(`/${username}/post/${postId}`);
+      router.push(`/${userId}/post/${postId}`);
     } else {
       // postId가 없는 경우 (예: mention 등 특정 타입) 프로필로 이동하거나 다른 처리
       console.log(
         `No postId for activity type: ${type}, navigating to profile`
       );
-      router.push(`/${username}`);
+      router.push(`/${userId}`);
     }
   };
 
   // 프로필 사진 클릭 시 이동 로직
   const handleAvatarPress = () => {
-    router.push(`/${username}`);
+    router.push(`/${userId}`);
   };
 
   return (
     <Pressable onPress={handleItemPress} style={styles.activityItemContainer}>
       {/* Avatar + Icon Container */}
       <Pressable onPress={handleAvatarPress} style={styles.avatarContainer}>
-        <Image source={{ uri: avatar }} style={styles.avatar} />
+        <Image source={{ uri: profileImageUrl }} style={styles.avatar} />
         <View style={[styles.iconCircle, { backgroundColor: iconColor }]}>
           <IconComponent name={iconName} size={12} color="white" />
         </View>
@@ -111,9 +107,16 @@ export default function ActivityItem({
                 : styles.usernameLight,
             ]}
           >
-            {username}
+            {userId}
           </Text>
-          {otherCount && <Text style={styles.otherCount}>+{otherCount}명</Text>}
+          {isVerified && (
+            <Ionicons
+              name="checkmark-circle"
+              size={16}
+              color="#0095F6"
+              style={styles.verifiedIcon}
+            />
+          )}
           <Text
             style={[
               styles.timeAgo,
@@ -149,28 +152,6 @@ export default function ActivityItem({
           </Text>
         )}
 
-        {link && (
-          <View style={styles.linkContainer}>
-            <FontAwesome name="link" size={14} color="#007AFF" />
-            <Text style={styles.linkText}>{link}</Text>
-          </View>
-        )}
-
-        {reply && (
-          <View style={styles.replyContainer}>
-            <Text
-              style={[
-                styles.replyText,
-                colorScheme === 'dark'
-                  ? styles.replyTextDark
-                  : styles.replyTextLight,
-              ]}
-            >
-              {reply}
-            </Text>
-          </View>
-        )}
-
         <View style={styles.activityFooter}>
           {likes !== undefined && (
             <View style={styles.likesContainer}>
@@ -178,7 +159,6 @@ export default function ActivityItem({
               <Text style={styles.likesText}>{likes}</Text>
             </View>
           )}
-          {actionButton && actionButton}
         </View>
       </View>
     </Pressable>
@@ -233,15 +213,8 @@ const styles = StyleSheet.create({
   usernameLight: {
     color: 'black',
   },
-  otherCount: {
-    fontSize: 14,
+  verifiedIcon: {
     marginRight: 4,
-  },
-  otherCountDark: {
-    color: 'white',
-  },
-  otherCountLight: {
-    color: '#888',
   },
   timeAgo: {
     fontSize: 14,
@@ -264,37 +237,6 @@ const styles = StyleSheet.create({
   activityTextLight: {
     color: '#333',
   },
-  linkContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-    backgroundColor: '#f0f0f0',
-    padding: 8,
-    borderRadius: 8,
-  },
-  linkText: {
-    marginLeft: 6,
-    fontSize: 13,
-    color: '#007AFF',
-    flexShrink: 1,
-  },
-  replyContainer: {
-    marginTop: 8,
-    borderLeftWidth: 2,
-    borderLeftColor: '#ddd',
-    paddingLeft: 8,
-  },
-  replyText: {
-    fontSize: 14,
-    color: '#555',
-    fontStyle: 'italic',
-  },
-  replyTextDark: {
-    color: '#ccc',
-  },
-  replyTextLight: {
-    color: '#555',
-  },
   activityFooter: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -309,17 +251,5 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 12,
     color: '#FF3B30',
-  },
-  followBackButton: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginLeft: 'auto',
-  },
-  followButtonText: {
-    fontSize: 13,
-    fontWeight: '600',
   },
 });

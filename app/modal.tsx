@@ -1,5 +1,4 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
-// import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import * as MediaLibrary from 'expo-media-library';
@@ -30,6 +29,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import styles from './modalStyles';
 
 interface Thread {
@@ -37,7 +37,7 @@ interface Thread {
   text: string;
   hashtag?: string;
   location?: [number, number];
-  imageUris: string[];
+  imageUrls: string[];
   topic?: string;
 }
 
@@ -74,7 +74,7 @@ export default function Modal() {
   // const router = useRouter();
   const colorScheme = useColorScheme();
   const [threads, setThreads] = useState<Thread[]>(() => [
-    { id: generateId(), text: '', imageUris: [] },
+    { id: generateId(), text: '', imageUrls: [] },
   ]);
   const insets = useSafeAreaInsets();
   const [replyOption, setReplyOption] = useState('Anyone');
@@ -108,7 +108,69 @@ export default function Modal() {
   };
 
   const handlePost = () => {
-    setIsPosting(true);
+    console.log('handlePost', threads);
+    const formData = new FormData();
+    threads.forEach((thread, index) => {
+      formData.append(`posts[${index}][id]`, thread.id);
+      formData.append(`posts[${index}][content]`, thread.text);
+      formData.append(`posts[${index}][userId]`, 'user0');
+      formData.append(
+        `posts[${index}][location]`,
+        JSON.stringify(thread.location)
+      );
+      thread.imageUrls.forEach((imageUrl, imageIndex) => {
+        formData.append(`posts[${index}][imageUrls][${imageIndex}]`, {
+          uri: imageUrl,
+          name: `image_${index}_${imageIndex}.png`,
+          type: 'image/png',
+        } as unknown as Blob);
+      });
+    });
+
+    Toast.show({
+      text1: 'Posting...',
+      type: 'customToast',
+      visibilityTime: 5000,
+      position: 'bottom',
+      bottomOffset: 20,
+    });
+
+    fetch('/posts', {
+      method: 'POST',
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log('post result', data);
+        router.replace(`/@${data[0].userId}/posts/${data[0].id}}`);
+        Toast.hide();
+        Toast.show({
+          text1: 'Post posted',
+          type: 'customToast',
+          visibilityTime: 5000,
+          position: 'bottom',
+          bottomOffset: 20,
+          onPress: () => {
+            console.log('post pressed', data);
+            router.replace(`/@${data[0].userId}/posts/${data[0].id}}`);
+            Toast.hide();
+          },
+        });
+      })
+      .catch((error) => {
+        console.error('post error', error);
+        Toast.hide();
+        Toast.show({
+          text1: 'Post failed',
+          type: 'customToast',
+          visibilityTime: 5000,
+          position: 'bottom',
+          bottomOffset: 20,
+        });
+      });
   };
 
   const updateThreadText = useCallback((id: string, text: string) => {
@@ -211,13 +273,13 @@ export default function Modal() {
     () =>
       // 마지막 요소 검증 (텍스트 또는 이미지 존재 여부)
       (threads.at(-1)?.text.trim().length ?? 0) > 0 ||
-      (threads.at(-1)?.imageUris.length ?? 0) > 0,
+      (threads.at(-1)?.imageUrls.length ?? 0) > 0,
     [threads]
   );
   const canPost = useMemo(
     () =>
       threads.every(
-        (thread) => thread.text.trim().length > 0 || thread.imageUris.length > 0
+        (thread) => thread.text.trim().length > 0 || thread.imageUrls.length > 0
       ),
     [threads]
   );
@@ -259,7 +321,7 @@ export default function Modal() {
           thread.id === id
             ? {
                 ...thread,
-                imageUris: thread.imageUris.concat(
+                imageUrls: thread.imageUrls.concat(
                   result.assets?.map((asset) => asset.uri) ?? []
                 ),
               }
@@ -301,7 +363,7 @@ export default function Modal() {
           thread.id === id
             ? {
                 ...thread,
-                imageUris: thread.imageUris.concat(
+                imageUrls: thread.imageUrls.concat(
                   result.assets?.map((asset) => asset.uri) ?? []
                 ),
               }
@@ -317,7 +379,7 @@ export default function Modal() {
         thread.id === id
           ? {
               ...thread,
-              imageUris: thread.imageUris.filter((uri) => uri !== uriToRemove),
+              imageUrls: thread.imageUrls.filter((uri) => uri !== uriToRemove),
             }
           : thread
       )
@@ -449,9 +511,9 @@ export default function Modal() {
           onChangeText={(text) => updateThreadText(item.id, text)}
           multiline
         />
-        {item.imageUris && item.imageUris.length > 0 && (
+        {item.imageUrls && item.imageUrls.length > 0 && (
           <FlatList
-            data={item.imageUris}
+            data={item.imageUrls}
             renderItem={({ item: uri, index: imgIndex }) => (
               <View style={styles.imagePreviewContainer}>
                 <Image source={{ uri }} style={styles.imagePreview} />
@@ -559,7 +621,7 @@ export default function Modal() {
                   if (canAddThread) {
                     setThreads((prevThreads) => [
                       ...prevThreads,
-                      { id: generateId(), text: '', imageUris: [] },
+                      { id: generateId(), text: '', imageUrls: [] },
                     ]);
                   }
                 }}

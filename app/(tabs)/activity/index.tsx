@@ -1,10 +1,11 @@
-import NotFound from '@/app/+not-found';
 import { AuthContext } from '@/app/_layout';
 import ActivityItem from '@/components/Activity';
 import SideMenu from '@/components/SideMenu';
 import { Ionicons } from '@expo/vector-icons';
+import { FlashList } from '@shopify/flash-list';
+import * as Haptics from 'expo-haptics';
 import { usePathname, useRouter } from 'expo-router';
-import { useContext, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -17,6 +18,50 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+interface ActivityData {
+  id: string;
+  type: string;
+  content: string;
+  timeAgo: string;
+  otherCount?: number;
+  likes?: number;
+  isRead: boolean;
+  user: {
+    id: string;
+    name: string;
+    description: string;
+    profileImageUrl: string;
+    isVerified?: boolean;
+  };
+  post?: {
+    id: string;
+    content: string;
+    imageUrls?: string[];
+    likes: number;
+    comments: number;
+    reposts: number;
+  };
+}
+
+// 시간순 정렬 (최신순)
+const sortedActivities = (activities: ActivityData[]) => {
+  activities.sort((a: any, b: any) => {
+    const timeOrder = [
+      '1m',
+      '5m',
+      '10m',
+      '30m',
+      '1h',
+      '2h',
+      '5h',
+      '1d',
+      '2d',
+      '1w',
+    ];
+    return timeOrder.indexOf(a.timeAgo) - timeOrder.indexOf(b.timeAgo);
+  });
+};
+
 export default function Index() {
   const router = useRouter();
   const pathname = usePathname();
@@ -26,18 +71,67 @@ export default function Index() {
   const isLoggedIn = !!user?.id;
   const colorScheme = useColorScheme();
 
-  if (
-    ![
-      '/activity',
-      '/activity/follows',
-      '/activity/replies',
-      '/activity/mentions',
-      '/activity/quotes',
-      '/activity/verified',
-    ].includes(pathname)
-  ) {
-    return <NotFound />;
-  }
+  // Activity 데이터 상태 관리
+  const [activities, setActivities] = useState<ActivityData[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // 현재 탭 타입 결정
+  const getCurrentTabType = useCallback(() => {
+    console.log('pathname', pathname);
+    if (pathname === '/activity') return 'all';
+    if (pathname === '/activity/follows') return 'follows';
+    if (pathname === '/activity/replies') return 'replies';
+    if (pathname === '/activity/mentions') return 'mentions';
+    if (pathname === '/activity/quotes') return 'quotes';
+    if (pathname === '/activity/verified') return 'verified';
+    return 'all';
+  }, [pathname]);
+
+  // Activity 데이터 로딩 함수
+  const onEndReached = useCallback(() => {
+    console.log('onEndReached', activities.at(-1)?.id);
+    const tabType = getCurrentTabType();
+
+    fetch(`/activities?type=${tabType}&cursor=${activities.at(-1)?.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.activities && data.activities.length > 0) {
+          sortedActivities(data.activities);
+          setActivities((prev) => [...prev, ...data.activities]);
+        }
+      });
+  }, [activities, getCurrentTabType]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    fetch(`/activities?type=${getCurrentTabType()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.activities && data.activities.length > 0) {
+          sortedActivities(data.activities);
+          setActivities((prev) => [...prev, ...data.activities]);
+        }
+      })
+      .finally(() => setRefreshing(false));
+  };
+
+  // 초기 데이터 로딩
+  useEffect(() => {
+    fetch(`/activities?type=${getCurrentTabType()}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.activities && data.activities.length > 0) {
+          // console.log('data', data);
+          sortedActivities(data.activities);
+          setActivities((prev) => [...prev, ...data.activities]);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to load initial activities:', error);
+      });
+  }, [getCurrentTabType]);
+
   return (
     <View
       style={[
@@ -75,7 +169,11 @@ export default function Index() {
           onClose={() => setIsSideMenuOpen(false)}
         />
       </View>
-      <View style={styles.tabBar}>
+      <ScrollView
+        horizontal
+        style={styles.tabBar}
+        contentContainerStyle={styles.tabBarContainer}
+      >
         <View>
           <TouchableOpacity
             style={[
@@ -232,62 +330,45 @@ export default function Index() {
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
-      <ScrollView>
-        <ActivityItem
-          id="1"
-          username="John Doe"
-          timeAgo="1h"
-          content="팔로우"
-          type="followed"
-          avatar="https://randomuser.me/api/portraits/men/1.jpg"
-        />
-        <ActivityItem
-          id="2"
-          username="John Doe"
-          timeAgo="1h"
-          postId="1"
-          content="Hello, comment!"
-          type="reply"
-          avatar="https://randomuser.me/api/portraits/men/1.jpg"
-        />
-        <ActivityItem
-          id="2"
-          username="John Doe"
-          timeAgo="1h"
-          postId="1"
-          content="liked your post"
-          type="like"
-          avatar="https://randomuser.me/api/portraits/men/1.jpg"
-        />
-        <ActivityItem
-          id="3"
-          username="John Doe"
-          timeAgo="1h"
-          postId="1"
-          content="reposted your post"
-          type="repost"
-          avatar="https://randomuser.me/api/portraits/men/1.jpg"
-        />
-        <ActivityItem
-          id="5"
-          username="John Doe"
-          timeAgo="1h"
-          postId="1"
-          content="mentioned you"
-          type="mention"
-          avatar="https://randomuser.me/api/portraits/men/1.jpg"
-        />
-        <ActivityItem
-          id="4"
-          username="John Doe"
-          timeAgo="1h"
-          postId="1"
-          content="quoted your post"
-          type="quote"
-          avatar="https://randomuser.me/api/portraits/men/1.jpg"
-        />
       </ScrollView>
+      <View style={styles.listContainer}>
+        <FlashList
+          data={activities}
+          renderItem={({ item }) => (
+            <ActivityItem
+              id={item.id}
+              userId={item.user.id}
+              profileImageUrl={item.user.profileImageUrl}
+              timeAgo={item.timeAgo}
+              content={item.content}
+              type={item.type}
+              postId={item.post?.id}
+              likes={item.likes}
+              isRead={item.isRead}
+              isVerified={item.user.isVerified || false}
+            />
+          )}
+          estimatedItemSize={350}
+          onEndReachedThreshold={0.5}
+          onEndReached={onEndReached}
+          onRefresh={onRefresh}
+          refreshing={refreshing}
+          ListEmptyComponent={() => (
+            <View style={styles.emptyContainer}>
+              <Text
+                style={[
+                  styles.emptyText,
+                  colorScheme === 'dark'
+                    ? styles.emptyTextDark
+                    : styles.emptyTextLight,
+                ]}
+              >
+                No activities found
+              </Text>
+            </View>
+          )}
+        />
+      </View>
     </View>
   );
 }
@@ -350,6 +431,10 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   tabBar: {
+    flexGrow: 0,
+  },
+  tabBarContainer: {
+    height: 45,
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
@@ -357,5 +442,28 @@ const styles = StyleSheet.create({
   logo: {
     width: 32,
     height: 32,
+  },
+  listContainer: {
+    flex: 1,
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 100,
+  },
+  emptyText: {
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  emptyTextLight: {
+    color: '#666',
+  },
+  emptyTextDark: {
+    color: '#ccc',
   },
 });
