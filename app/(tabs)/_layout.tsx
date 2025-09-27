@@ -6,6 +6,7 @@ import {
   Animated,
   Modal,
   Pressable,
+  StyleSheet,
   Text,
   useColorScheme,
   View,
@@ -225,6 +226,7 @@ export default function TabLayout() {
         visible={isLoginModalOpen}
         transparent={true}
         animationType="slide"
+        onRequestClose={closeLoginModal}
       >
         <View
           style={{
@@ -237,13 +239,45 @@ export default function TabLayout() {
             style={{
               backgroundColor: 'white',
               padding: 20,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              minHeight: 200,
             }}
           >
-            <Pressable onPress={toLoginPage}>
-              <Text>Login Modal</Text>
-            </Pressable>
-            <Pressable onPress={closeLoginModal}>
-              <Ionicons name="close" size={24} color="#555" />
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 20,
+              }}
+            >
+              <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
+                로그인이 필요합니다
+              </Text>
+              <Pressable onPress={closeLoginModal}>
+                <Ionicons name="close" size={24} color="#555" />
+              </Pressable>
+            </View>
+            <Pressable
+              onPress={toLoginPage}
+              style={[
+                styles.modalLoginButton,
+                colorScheme === 'dark'
+                  ? styles.modalLoginButtonDark
+                  : styles.modalLoginButtonLight,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.modalLoginText,
+                  colorScheme === 'dark'
+                    ? styles.modalLoginTextDark
+                    : styles.modalLoginTextLight,
+                ]}
+              >
+                로그인하기
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -251,3 +285,29 @@ export default function TabLayout() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  modalLoginButton: {
+    backgroundColor: 'black',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalLoginButtonDark: {
+    backgroundColor: 'white',
+  },
+  modalLoginButtonLight: {
+    backgroundColor: 'black',
+  },
+  modalLoginText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalLoginTextDark: {
+    color: 'black',
+  },
+  modalLoginTextLight: {
+    color: 'white',
+  },
+});

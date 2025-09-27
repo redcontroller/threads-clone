@@ -145,7 +145,7 @@ export default function Modal() {
       .then((res) => res.json())
       .then((data) => {
         console.log('post result', data);
-        router.replace(`/@${data[0].userId}/posts/${data[0].id}}`);
+        router.replace(`/@${data[0].userId}/post/${data[0].id}`);
         Toast.hide();
         Toast.show({
           text1: 'Post posted',
@@ -155,7 +155,7 @@ export default function Modal() {
           bottomOffset: 20,
           onPress: () => {
             console.log('post pressed', data);
-            router.replace(`/@${data[0].userId}/posts/${data[0].id}}`);
+            router.replace(`/@${data[0].userId}/post/${data[0].id}`);
             Toast.hide();
           },
         });

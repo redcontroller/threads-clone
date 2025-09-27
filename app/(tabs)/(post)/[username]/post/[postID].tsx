@@ -25,19 +25,22 @@ export default function PostScreen() {
   const [comments, setComments] = useState<PostType[]>([]);
 
   useEffect(() => {
+    setPost(null);
+    setComments([]);
     fetch(`/posts/${postID}`)
       .then((res) => res.json())
       .then((data) => {
         console.log('post data', data);
         setPost(data.post);
       });
+
+    // 댓글 데이터 가져오기
     fetch(`/posts/${postID}/comments`)
       .then((res) => res.json())
       .then((data) => {
         setComments(data.posts);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [postID]);
 
   return (
     <View
@@ -89,7 +92,7 @@ export default function PostScreen() {
           onClose={() => setIsSideMenuOpen(false)}
         />
       </View>
-      {post && (
+      {post ? (
         <ScrollView style={styles.scrollView} nestedScrollEnabled={true}>
           <Post item={post} />
           <View style={styles.repliesHeader}>
@@ -109,6 +112,18 @@ export default function PostScreen() {
             estimatedItemSize={200}
           />
         </ScrollView>
+      ) : (
+        <View style={styles.loadingContainer}>
+          <Text
+            style={
+              colorScheme === 'dark'
+                ? styles.loadingTextDark
+                : styles.loadingTextLight
+            }
+          >
+            게시물을 불러오는 중...
+          </Text>
+        </View>
       )}
     </View>
   );
@@ -163,5 +178,18 @@ const styles = StyleSheet.create({
   },
   repliesHeaderLight: {
     color: '#000',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingTextDark: {
+    color: 'white',
+    fontSize: 16,
+  },
+  loadingTextLight: {
+    color: '#000',
+    fontSize: 16,
   },
 });

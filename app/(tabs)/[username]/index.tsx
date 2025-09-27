@@ -33,7 +33,7 @@ const Header = () => {
         What&apos;s new?
       </Text>
       <Pressable
-        onPress={() => router.push('/model')}
+        onPress={() => router.navigate('/modal')}
         style={[
           styles.postButton,
           colorScheme === 'dark'

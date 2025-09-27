@@ -29,6 +29,7 @@ if (__DEV__) {
     models: {
       user: Model.extend({
         posts: hasMany('post'),
+        activities: hasMany('activity'),
       }),
       post: Model.extend({
         user: belongsTo('user'),
@@ -71,7 +72,7 @@ if (__DEV__) {
       }),
       post: Factory.extend({
         id: () => faker.string.numeric(6),
-        content: () => faker.lorem.sentence(),
+        content: () => faker.lorem.paragraph(),
         imageUrls: () =>
           Array.from({ length: Math.floor(Math.random() * 3) }, () =>
             // faker.image.urlLoremFlickr({ category: 'nature' })
@@ -187,7 +188,7 @@ if (__DEV__) {
           const match = key.match(/posts\[(\d+)\]\[(\w+)\](\[(\d+)\])?$/);
           console.log('key', key, match, value);
           if (match) {
-            const [_, index, field, , imageIndex] = match;
+            const [, index, field, , imageIndex] = match;
             const i = parseInt(index);
             const imgI = parseInt(imageIndex);
             if (!posts[i]) {
@@ -239,7 +240,7 @@ if (__DEV__) {
           .slice(targetIndex + 1, targetIndex + 11); // 최신순 정렬
       });
 
-      this.post('/posts/:id', (schema, request) => {
+      this.get('/posts/:id', (schema, request) => {
         // console.log('request', request.params.id);
         return schema.find('post', request.params.id);
       });
@@ -258,6 +259,7 @@ if (__DEV__) {
       });
 
       this.get('/users/:id', (schema, request) => {
+        console.log('request', request.params.id);
         return schema.find('user', request.params.id.slice(1));
       });
 

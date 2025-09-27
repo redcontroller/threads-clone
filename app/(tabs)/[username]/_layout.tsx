@@ -57,6 +57,7 @@ export default function TabLayout() {
     } else {
       setProfile(user);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [username]);
 
   const handleOpenEditModal = () => {
